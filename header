@@ -1,0 +1,135 @@
+header
+	
+    number -- {int}
+	previous_hash -- {byte[]}
+	data_hash -- {byte[]}
+
+data
+
+	data -- {array}
+		signature -- {byte[]}
+		payload
+			header -- {Header} IST:
+
+                channel_header
+                    type -- {string}
+                    version -- {int}
+                    timestamp -- {time}
+                    channel_id -- {string}
+                    tx_id -- {string}
+                    epoch -- {int}
+                
+                signature_header -- {SignatureHeader} IST: (neu ab Version 1.1?)
+                        
+                        creator
+                            Mspid -- {string}
+                            IdBytes -- {byte[]}
+                        nonce -- {byte[]}
+
+		    data -- {ConfigEnvelope *NUR TEIL EINES CONFIG BLOCKS | Transaction}
+                actions
+                    
+                    header
+                        
+                        creator
+                            Mspid -- {string}
+                            IdBytes -- {byte[]}
+                        nonce -- {byte[]}
+                    
+                    payload
+                        
+                        chaincode_proposal_payload
+                            input
+                                chaincode_spec
+                                    type -- {int}
+                                    chaincode_id
+                                        path -- {string}
+                                        name -- {string}
+                                        version -- {string}
+                                    input
+                                        args -- {byte[][]}
+                                        decorations -- {map of string to byte[]}
+                                    timeout -- {int}
+                            TransientMap (leer?? warum?? was ist das??)
+                        
+                        action
+
+                            proposal_response_payload
+                                proposal_hash -- {byte[]}
+                                extension
+                                    results
+                                        data_model -- {int} (KV als Eintrag ist kein wohl doch kein INT!)
+                                        ns_rwset -- {array}
+                                            namespace -- {string}
+                                            rwset
+                                                reads -- {array}
+                                                    key -- {string}
+                                                    version
+                                                        block_num -- {number} (nicht gefunden, evtl. optional, wenn version!=null)
+                                                        tx_num -- {number}    (nicht gefunden, evtl. optional, wenn version!=null
+                                                range_queries_info -- {array}
+                                                writes -- {array}
+                                                    key -- {string}
+                                                    is_delete -- {boolean}
+                                                    value -- {string}
+                                                metadata_writes -- {array}    (war empty array, drunter auch nix logisch)
+                                                    key -- {string}
+                                                    entries -- {array}
+                                                        name -- {string}
+                                                        value -- {byte[]}
+
+                                            // der Teil ist in der SDK Dokumentation falsch eingerückt, oder doch nicht? PRüfen!: https://hyperledger.github.io/fabric-sdk-node/release-1.4/global.html#Transaction
+                                            
+                                            collection_hashed_rwset -- {array}   (war bisher immer leer)
+                                                collection_name -- {string}
+                                                hashed_rwset
+                                                    hashed_reads -- {array}
+                                                        key_hash -- {byte[]}
+                                                        version
+                                                            block_num -- {number}
+                                                            tx_num -- {number}
+                                                    hashed_writes -- {array}
+                                                        key_hash -- {byte[]}
+                                                        is_delete -- {boolean}
+                                                        value_hash -- {byte[]}
+                                                    metadata_writes -- {array}
+                                                        key_hash -- {byte[]}
+                                                        entries -- {array}
+                                                            name -- {string}
+                                                            value -- {byte[]}
+                                                pvt_rwset_hash -- {byte[]}
+
+                                    events                          (war null)
+                                        chaincode_id --  {string}   (war null)
+                                        tx_id -- {string}
+                                        event_name -- {string}
+                                        payload -- {byte[]}
+                                    response
+                                        status -- {int}
+                                        message -- {string}
+                                        payload -- {byte[]}    
+                                    token_expectation: null
+                                    
+                            endorsements
+                                endorser
+                                    Mspid -- {string]
+                                    IdBytes -- {byte[]}
+                                signature -- {byte[]}
+
+metadata
+	
+    
+    
+    metadata -- {array} #each array item has it's own layout
+		[0] #SIGNATURES
+			signatures -- {MetadataSignature[]}
+		[1] #LAST_CONFIG
+			value
+				index -- {number}
+				signatures -- {MetadataSignature[]}
+		[2] #TRANSACTIONS_FILTER
+				{int[]} #see TxValidationCode in proto/peer/transaction.p
+
+
+
+# NEXT TODO: Alphabetisch sortieren? Macht das sinn, kann der ENCODER damit später wieder umgehen? Klären!
